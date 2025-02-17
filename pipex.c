@@ -6,7 +6,7 @@
 /*   By: aswedan <aswedan@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 13:38:37 by aswedan           #+#    #+#             */
-/*   Updated: 2025/02/17 17:25:46 by aswedan          ###   ########.fr       */
+/*   Updated: 2025/02/17 19:20:10 by aswedan          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,13 @@ void	print_error(char *msg)
 	exit(1);
 }
 
+void	file_opener_handler(int *pipe_fd)
+{
+	close(pipe_fd[0]);
+	close(pipe_fd[1]);
+	print_error("ERROR\nCan not open the file!");
+}
+
 void	first_child_function(int *pipe_fd, char **av, char **envp)
 {
 	int		file1;
@@ -25,6 +32,8 @@ void	first_child_function(int *pipe_fd, char **av, char **envp)
 	char	**cmd;
 
 	file1 = open(av[1], O_RDONLY);
+	if (file1 == -1)
+		file_opener_handler(pipe_fd);
 	dup2(file1, 0);
 	dup2(pipe_fd[1], 1);
 	close(file1);
@@ -39,10 +48,9 @@ void	first_child_function(int *pipe_fd, char **av, char **envp)
 		path = ft_strdup(" ");
 	if (execve(path, cmd, envp) == -1)
 	{
-		write(2, "ERROR\nCMD1", ft_strlen("ERROR\nCMD1"));
 		free_2d(cmd);
 		free(path);
-		exit(1);
+		print_error("Error\nCMD1!");
 	}
 }
 
@@ -53,6 +61,8 @@ void	second_child_function(int *pipe_fd, char **av, char **envp)
 	char	**cmd;
 
 	file2 = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (file2 == -1)
+		file_opener_handler(pipe_fd);
 	dup2(file2, 1);
 	dup2(pipe_fd[0], 0);
 	close(file2);
@@ -67,10 +77,9 @@ void	second_child_function(int *pipe_fd, char **av, char **envp)
 		path = ft_strdup(" ");
 	if (execve(path, cmd, envp) == -1)
 	{
-		write(2, "ERROR\nCMD2", ft_strlen("ERROR\nCMD2"));
 		free_2d(cmd);
 		free(path);
-		exit(1);
+		print_error("Error\nCMD2!");
 	}
 }
 
