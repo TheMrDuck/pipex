@@ -4,7 +4,7 @@ OBJS = $(SRCS:.c=.o)
 
 LIBFT = libft/libft.a
 CC = cc
-CFLAGS = -I.
+CFLAGS = -Wall -Wextra -Werror -I. -g
 
 NAME = pipex
 

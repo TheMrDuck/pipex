@@ -6,30 +6,50 @@
 /*   By: aswedan <aswedan@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 16:52:43 by aswedan           #+#    #+#             */
-/*   Updated: 2025/02/04 17:44:11 by aswedan          ###   ########.fr       */
+/*   Updated: 2025/02/17 17:16:49 by aswedan          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char *path_finder(char ** evnp, char *cmd)
+void	free_2d(char **path)
 {
 	int	i;
-	char **path;
-	char *final_path;
+
+	i = 0;
+	while (path[i])
+	{
+		free(path[i]);
+		i++;
+	}
+	free(path);
+}
+
+char	*path_finder(char **evnp, char *cmd)
+{
+	int		i;
+	char	**path;
+	char	*final_path;
+	char	*temp;
 
 	i = 0;
 	while (ft_strncmp(evnp[i], "PATH=", 5))
 		i++;
-	path = ft_split(evnp[i], ':');
+	path = ft_split(evnp[i] + 5, ':');
 	i = 0;
-	while(path)
+	while (path[i])
 	{
-		final_path = ft_strjoin(path[i], "/");
-		final_path = ft_strjoin(path[i], cmd);
-		if(access(final_path, X_OK) == 0)
-			return final_path;
+		temp = ft_strjoin(path[i], "/");
+		final_path = ft_strjoin(temp, cmd);
+		free(temp);
+		if (access(final_path, X_OK) == 0)
+		{
+			free_2d(path);
+			return (final_path);
+		}
 		i++;
+		free(final_path);
 	}
-	return NULL;
+	free_2d(path);
+	return (NULL);
 }
